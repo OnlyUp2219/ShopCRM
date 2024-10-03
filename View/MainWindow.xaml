@@ -1,0 +1,192 @@
+﻿<Window x:Class="ShopCRM.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ShopCRM.View" 
+        xmlns:viewmodel="clr-namespace:ShopCRM.ViewModel"
+        d:DataContext="{d:DesignInstance Type=viewmodel:DataManageVM}"
+        mc:Ignorable="d"
+        Title="ShopCRM" Height="450" Width="800"
+        Name="MainWnd">
+    <Grid MinWidth="600" MinHeight="200" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="65"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width ="2*"/>
+        </Grid.ColumnDefinitions>
+
+        <TabControl Name="TabControWithInfo" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan= "2" SelectedItem="{Binding SelectedTabItem}">
+
+            <!-- Вкладка с клиентами -->
+            <TabItem Name="ClientsTab">
+                <TabItem.Header>
+                    <TextBlock Text="Клиенты"/>
+                </TabItem.Header>
+                <TabItem.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Редактировать" Command="{Binding OpenEditItemWnd}"/>
+                        <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                    </ContextMenu>
+                </TabItem.ContextMenu>
+                <DataGrid Name="ViewClientsList" 
+                          ItemsSource="{Binding AllClients}" 
+                          SelectedItem="{Binding SelectedClient}"
+                          AutoGenerateColumns="False" 
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding Name}" Header="Имя" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding Surname}" Header="Фамилия" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding Phone}" Header="Телефон" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding Email}" Header="Email" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding Company}" Header="Компания" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка с продажами -->
+            <TabItem Name="OrdersTab">
+                <TabItem.Header>
+                    <TextBlock Text="Продажи"/>
+                </TabItem.Header>
+                <TabItem.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Редактировать" Command="{Binding OpenEditItemWnd}"/>
+                        <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                    </ContextMenu>
+                </TabItem.ContextMenu>
+                <DataGrid Name="ViewOrdersList" 
+                          ItemsSource="{Binding AllOrders}" 
+                          SelectedItem="{Binding SelectedOrder}"
+                          AutoGenerateColumns="False" 
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding OrderClient.Name}" Header="Имя" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding OrderClient.Surname}" Header="Фамилия" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding OrderDate}" Header="Дата заказа" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding Product}" Header="Продукт" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding Quantity}" Header="Количество" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding Price}" Header="Сумма" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
+
+        <Grid Grid.Column="0" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.75*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock>Фильтры</TextBlock>
+            <ComboBox Grid.Row="1" Margin="1,0" MinHeight="15"
+                SelectedIndex="{Binding SelectedFilterIndex}">
+                <ComboBoxItem Content="По дате" />
+                <ComboBoxItem Content="По клиенту" />
+            </ComboBox>
+
+            <!-- Контейнер для фильтрации по дате -->
+            <Grid x:Name="DateFilterPanel" 
+                Visibility="{Binding IsElementVisibleDate}" 
+                Grid.Column="1"  Grid.Row="0" Grid.RowSpan="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="По дате:   от" Grid.Row="0"/>
+                <TextBox    x:Name="FromDateFilterBlock"
+                    Text="{Binding FromDateFilter}" 
+                            Grid.Column="1" Grid.ColumnSpan="2" 
+                            Grid.Row="0"/>
+
+                <TextBlock Text="до" Grid.Row="1" HorizontalAlignment="Right" />
+                <TextBox    x:Name="ToDateFilterBlock"
+                    Text="{Binding ToDateFilter}" 
+                            Grid.Column="1" Grid.ColumnSpan="2" 
+                            Grid.Row="1"/>
+
+                <Button Content="Применить" Command="{Binding FilterByDateCommand}" 
+                        CommandParameter="{Binding ElementName=MainWnd}"
+                        Grid.Column="1" Grid.ColumnSpan="2"
+                        Grid.Row="2"/>
+            </Grid>
+
+            <!--Контейнер для фильтрации по клиенту-->
+            <Grid x:Name="ClientFilterPanel" 
+                        Visibility="{Binding IsElementVisibleClient}" 
+                        Grid.Column="1"  Grid.Row="0" Grid.RowSpan="3">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+
+                <TextBlock Text="Имя" Grid.Row="0"/>
+                <TextBox Text="{Binding NameFilter}"
+                         Name="NameFilterBlock"
+                         Grid.Column="1" Grid.ColumnSpan="2" 
+                         Grid.Row="0"/>
+
+                <TextBlock Text="Фамиилия" Grid.Row="1"/>
+                <TextBox Text="{Binding SurnameFilter }"
+                         Name="SurnameFilterBlock"
+                         Grid.Column="1" Grid.ColumnSpan="2"
+                         Grid.Row="1"/>
+
+                <Button Content="Применить" Command="{Binding FilterByClientCommand}" 
+                        CommandParameter="{Binding ElementName=MainWnd}"
+                        Grid.Column="1" Grid.ColumnSpan="2" 
+                        Grid.Row="2"/>
+
+            </Grid>
+
+            <Button Grid.Row="2" Grid.Column="3" Margin="25,0"
+                    Content="Сбросить фильтр"
+                    Command="{Binding ResetGridView}"
+                    CommandParameter="{Binding ElementName=MainWnd}"/>
+        </Grid>
+
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" MinWidth="75" Command="{Binding OpenAddNewClient}" >
+                <TextBlock Text="Добавить пользователя"
+                 TextWrapping="Wrap"
+                 TextAlignment="Center" />
+            </Button>
+            
+            <Button Grid.Column="1" MinWidth="75" Command="{Binding OpenAddNewOrder}" >
+                <TextBlock Text="Добавить заказ"
+                 TextWrapping="Wrap"
+                 TextAlignment="Center" />
+            </Button>
+        </Grid>
+
+    </Grid>
+</Window>
